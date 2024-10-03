@@ -1,56 +1,49 @@
-import { LitElement, html } from 'lit';
-import { ifDefined } from 'lit/directives/if-defined.js';
+import { LitElement, html, css, unsafeCSS } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-
 import Worker from './sketcher.worker.ts';
-
+import JSZip from 'jszip';
 import style from './index.css';
 
 const worker = new Worker();
-
 const SUPPORTED_EXTENSIONS = ['.fa', '.fasta', '.fna', '.gz', '.fq', '.fastq'];
-@customElement('mgnify-sourmash-component')
+
+
+@customElement('snipe-sourmash-component')
 export class MGnifySourmash extends LitElement {
   @property({ type: Boolean, reflect: true })
   directory = false;
+
   @property({ type: Boolean })
   show_directory_checkbox = false;
+
   @property({ type: Boolean })
   show_signatures = false;
 
   // KmerMinHash parameters
-  @property({ type: Number })
-  num = 0;
-  @property({ type: Number })
-  ksize = 31;
-  @property({ type: Boolean })
-  is_protein = false;
-  @property({ type: Boolean })
-  dayhoff = false;
-  @property({ type: Boolean })
-  hp = false;
-  @property({ type: Number })
-  seed = 42;
-  @property({ type: Number })
-  scaled = 1000;
-  @property({ type: Boolean })
-  track_abundance = false;
+  @property({ type: Number }) num = 0;
+  @property({ type: Number }) ksize = 51;
+  @property({ type: Boolean }) is_protein = false;
+  @property({ type: Boolean }) dayhoff = false;
+  @property({ type: Boolean }) hp = false;
+  @property({ type: Number }) seed = 42;
+  @property({ type: Number }) scaled = 10000;
+  @property({ type: Boolean }) track_abundance = true;
 
-  selectedFiles: Array<File> = null;
-  progress: {
-    [filename: string]: number;
-  } = {};
-  signatures: {
-    [filename: string]: string;
-  } = {};
-  errors: {
-    [filename: string]: string;
-  } = {};
+  selectedFiles: Array<File> = [];
+  progress: { [filename: string]: number } = {};
+  signatures: { [filename: string]: string } = {};
+  errors: { [filename: string]: string } = {};
 
-  static styles = [style];
+
+  // load unsafeCSS from lit to avoid security issues
+  // static styles = [unsafeCSS(style)]; 
 
   constructor() {
     super();
+    this.initWorker();
+  }
+
+  initWorker() {
     worker.addEventListener('message', (event) => {
       switch (event?.data?.type) {
         case 'progress:read':
@@ -59,40 +52,11 @@ export class MGnifySourmash extends LitElement {
           break;
         case 'signature:error':
           this.errors[event.data.filename] = event.data.error;
-          this.dispatchEvent(
-            new CustomEvent('sketchedError', {
-              bubbles: true,
-              detail: {
-                filename: event.data.filename,
-                error: event.data.error,
-              },
-            })
-          );
           this.requestUpdate();
           break;
         case 'signature:generated':
           this.signatures[event.data.filename] = event.data.signature;
           this.progress[event.data.filename] = 100;
-          this.dispatchEvent(
-            new CustomEvent('sketched', {
-              bubbles: true,
-              detail: {
-                filename: event.data.filename,
-                signature: event.data.signature,
-              },
-            })
-          );
-          if (this.haveCompletedAllSignatures()) {
-            this.dispatchEvent(
-              new CustomEvent('sketchedall', {
-                bubbles: true,
-                detail: {
-                  signatures: this.signatures,
-                  errors: this.errors,
-                },
-              })
-            );
-          }
           this.requestUpdate();
           break;
         default:
@@ -101,121 +65,26 @@ export class MGnifySourmash extends LitElement {
     });
   }
 
-  private haveCompletedAllSignatures() {
-    return Object.keys(this.progress).every(
-      (key: string) => key in this.signatures || key in this.errors
-    );
-  }
-
-  setChecked(event: MouseEvent) {
-    this.directory = (event.target as HTMLInputElement).checked;
-  }
-
-  clear() {
-    this.selectedFiles = null;
-    this.progress = {};
-    this.signatures = {};
-    this.errors = {};
-    (
-      this.renderRoot.querySelector('#sourmash-selector') as HTMLInputElement
-    ).value = null;
-    this.requestUpdate();
-  }
-
-  renderSelectedFiles() {
-    if ((this.selectedFiles?.length || 0) < 1) return '';
-    return html`
-      <div>
-        <h2>Selected Files:</h2>
-        <ul>
-          ${this.selectedFiles.map((file: File) => {
-            const progress = this.progress?.[file.name] || 0;
-            const signature = this.signatures[file.name];
-            const error = this.errors[file.name];
-            let emoji = html``;
-            if (signature) emoji = html`✅`;
-            if (error)
-              emoji = html`<span title=${error}>⚠️<code>${error}</code></span>`;
-            return html` <li>
-              ${file.name} ${emoji}
-              <progress
-                id=${file.name}
-                max="100"
-                value=${ifDefined(progress > 100 ? undefined : progress)}
-              >
-                ${progress.toFixed(2)}%
-              </progress>
-              ${this.show_signatures && signature?.length
-                ? html`
-                    <details>
-                      <summary>See signature</summary>
-                      <pre>${signature}</pre>
-                    </details>
-                  `
-                : ''}
-            </li>`;
-          })}
-        </ul>
-      </div>
-    `;
-  }
-  render() {
-    let label = this.directory ? 'Choose a directory...' : 'Choose Files...';
-    if (this.selectedFiles?.length)
-      label = `${this.selectedFiles?.length} Files Selected`;
-    return html`
-      <div class="mgnify-sourmash-component">
-        <label
-          >Select ${this.is_protein ? 'protein' : 'nucleotides'} FastA
-          files:</label
-        >
-        <label class="file" for="sourmash-selector">
-          <input
-            type="file"
-            id="sourmash-selector"
-            name="sourmash-selector"
-            accept=${SUPPORTED_EXTENSIONS.join(',')}
-            @change=${this.handleFileChanges}
-            ?webkitdirectory=${this.directory}
-            ?multiple=${!this.directory}
-          />
-          <span class="file-custom" data-label=${label}></span>
-        </label>
-        ${this.show_directory_checkbox
-          ? html`
-              <div class="mode-selector">
-                <button
-                  class=${this.directory ? '' : 'selected'}
-                  @click=${() => (this.directory = false)}
-                >
-                  Files
-                </button>
-                <button
-                  class=${this.directory ? 'selected' : ''}
-                  @click=${() => (this.directory = true)}
-                >
-                  Directory
-                </button>
-              </div>
-            `
-          : ''}
-        ${this.renderSelectedFiles()}
-      </div>
-    `;
-  }
-
   handleFileChanges(event: InputEvent) {
-    event.preventDefault();
-    this.selectedFiles = Array.from(
-      (event.currentTarget as HTMLInputElement).files
-    ).filter((file: File) => {
-      for (const ext of SUPPORTED_EXTENSIONS) {
-        if (file.name.endsWith(ext)) {
-          return true;
-        }
-      }
-      return false;
-    });
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      this.selectedFiles = Array.from(input.files).filter((file: File) =>
+        SUPPORTED_EXTENSIONS.some((ext) => file.name.endsWith(ext))
+      );
+      this.requestUpdate();
+    }
+  }
+
+  handleInputChange<T extends keyof MGnifySourmash>(event: InputEvent, key: T) {
+    const input = event.target as HTMLInputElement;
+    this[key] = input.type === 'checkbox' ? (input.checked as any) : (Number(input.value) as any);
+  }
+
+  startSketching() {
+    if (!this.selectedFiles?.length) {
+      alert('Please select files before starting sketching.');
+      return;
+    }
 
     worker.postMessage({
       files: this.selectedFiles,
@@ -230,21 +99,202 @@ export class MGnifySourmash extends LitElement {
         track_abundance: this.track_abundance,
       },
     });
-    this.dispatchEvent(
-      new CustomEvent('change', {
-        bubbles: true,
-        detail: {
-          selectedFiles: this.selectedFiles,
-        },
-      })
-    );
+  }
 
+  clearSession() {
+    this.selectedFiles = [];
+    this.progress = {};
+    this.signatures = {};
+    this.errors = {};
     this.requestUpdate();
+  }
+
+  downloadAllSketches() {
+    const zip = new JSZip();
+    Object.entries(this.signatures).forEach(([filename, signature]) => {
+      const basename = filename.split('.').slice(0, -1).join('.');
+      zip.file(`${basename}.sig`, signature);
+    });
+    zip.generateAsync({ type: 'blob' }).then((content: Blob) => {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(content);
+      link.download = 'sketches.zip';
+      link.click();
+    });
+  }
+
+  downloadSketch(filename: string) {
+    const signature = this.signatures[filename];
+    const basename = filename.split('.').slice(0, -1).join('.');
+    const blob = new Blob([signature], { type: 'text/plain' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${basename}.sig`;
+    link.click();
+  }
+
+  renderSelectedFiles() {
+    if ((this.selectedFiles?.length || 0) < 1) return '';
+    return html`
+      <div>
+        <h2>Selected Files:</h2>
+        <ul class="list-group">
+          ${this.selectedFiles.map((file: File) => {
+            const progress = this.progress?.[file.name] || 0;
+            const signature = this.signatures[file.name];
+            const error = this.errors[file.name];
+            let statusIcon = '';
+            if (signature) statusIcon = '✅';
+            if (error) statusIcon = `⚠️`;
+  
+            return html`
+              <li class="list-group-item">
+                <div class="row align-items-center">
+                  <!-- File name -->
+                  <div class="col-md-3">
+                    <h6 class="mb-0">${file.name} ${statusIcon}</h6>
+                  </div>
+  
+                  <!-- Progress bar -->
+                  <div class="col-md-6">
+                    <div class="progress">
+                      <div
+                        class="progress-bar"
+                        role="progressbar"
+                        style="width: ${progress}%;"
+                        aria-valuenow="${progress}"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                      ></div>
+                    </div>
+                  </div>
+  
+                  <!-- Download button -->
+                  <div class="col-md-3 text-end">
+                    <button
+                      class="btn btn-outline-primary btn-sm"
+                      @click=${() => this.downloadSketch(file.name)}
+                      ?disabled=${progress < 100}
+                    >
+                      Download
+                    </button>
+                  </div>
+                </div>
+  
+                <!-- Error message, if any -->
+                ${error
+                  ? html`<div class="alert alert-danger mt-2" role="alert">${error}</div>`
+                  : ''}
+              </li>
+            `;
+          })}
+        </ul>
+      </div>
+    `;
+  }
+  
+
+
+  render() {
+    return html`
+    <style>
+      ${style}
+    </style>
+      <body class="container snipe-sourmash-component py-5">
+      <!-- Google Tag Manager (noscript) -->
+      <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N5RW3TB3"
+          height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+        <div class="container" style="max-width: 800px;">
+          <h1 class="text-center mb-4">Snipe Sketching Dashboard</h1>
+          <div class="card">
+            <div class="card-body">
+              <div class="mb-3">
+                <label for="file-input" class="form-label">Select Files:</label>
+                <input
+                  class="form-control"
+                  type="file"
+                  id="file-input"
+                  @change=${this.handleFileChanges}
+                  multiple
+                  accept=${SUPPORTED_EXTENSIONS.join(',')}
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="folder-input" class="form-label">Select Folder:</label>
+                <input
+                  class="form-control"
+                  type="file"
+                  id="folder-input"
+                  webkitdirectory
+                  @change=${this.handleFileChanges}
+                />
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-4">
+                  <label for="ksize" class="form-label">K-size:</label>
+                  <input
+                    type="number"
+                    id="ksize"
+                    class="form-control"
+                    .value="${this.ksize}"
+                    @input=${(e: InputEvent) => this.handleInputChange(e, 'ksize')}
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label for="scaled" class="form-label">Scaled:</label>
+                  <input
+                    type="number"
+                    id="scaled"
+                    class="form-control"
+                    .value="${this.scaled}"
+                    @input=${(e: InputEvent) => this.handleInputChange(e, 'scaled')}
+                  />
+                </div>
+                <div class="col-md-4">
+                  <div class="form-check mt-4">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="track-abundance"
+                      .checked="${this.track_abundance}"
+                      @input=${(e: InputEvent) => this.handleInputChange(e, 'track_abundance')}
+                    />
+                    <label class="form-check-label" for="track-abundance">
+                      Track Abundance
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <hr />
+              <div class="d-flex justify-content-between mt-4">
+                <button class="btn btn-primary" @click=${this.startSketching}>Start Sketching</button>
+                <button class="btn btn-secondary ms-2" @click=${this.clearSession}>Clear</button>
+                ${Object.keys(this.signatures).length > 0
+                  ? html`
+                      <button class="btn btn-success ms-2" @click=${this.downloadAllSketches}>
+                        Download All as Zip
+                      </button>
+                    `
+                  : ''}
+              </div>
+              <hr />
+
+              ${this.renderSelectedFiles()}
+            </div>
+          </div>
+        </div>
+      </body>
+    `;
   }
 }
 
+
 declare global {
   interface HTMLElementTagNameMap {
-    'mgnify-sourmash-component': MGnifySourmash;
+    'snipe-sourmash-component': MGnifySourmash;
   }
 }
