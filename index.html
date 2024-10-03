@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-N5RW3TB3');</script><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous"><title>WebSketch Dashboard</title><script defer="defer" src="snipe-sourmash-component.js"></script></head><snipe-sourmash-component id="sourmash" show_directory_checkbox show_signatures></snipe-sourmash-component><script>document
+        .getElementById('sourmash')
+        .addEventListener('sketched', (evt) =>
+          console.log(
+            `The signature for ${evt.detail.filename} has been created`,
+            JSON.parse(evt.detail.signature)
+          )
+        );
+      document
+        .getElementById('sourmash')
+        .addEventListener('sketchedall', (evt) =>
+          console.log(
+            `Processing of all these files have finished: ${Object.keys(
+              evt.detail.signatures
+            )}`
+          )
+        );</script><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script></html>

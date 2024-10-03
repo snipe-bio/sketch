@@ -1,8 +1,0 @@
-*.html
-*.handlebars
-*.css
-*.svg
-node_modules/*
-docs/*
-docs-src/*
-custom-elements.json
