@@ -193,178 +193,177 @@ export class MGnifySourmash extends LitElement {
     `;
   }
   
-
-
   render() {
-  return html`
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
-    <style>
-        /* Custom Styles */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .container.snipe-sourmash-component {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            max-width: 800px;
-        }
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 2rem;
-            font-size: 2.5rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        .card {
-            border: none;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-        .card-body {
-            padding: 2rem;
-        }
-        .form-label {
-            font-weight: bold;
-            color: #34495e;
-        }
-        .btn-primary {
-            background-color: #3498db;
-            border-color: #3498db;
-        }
-        .btn-primary:hover {
-            background-color: #2980b9;
-            border-color: #2980b9;
-        }
-        .btn-secondary {
-            background-color: #95a5a6;
-            border-color: #95a5a6;
-        }
-        .btn-secondary:hover {
-            background-color: #7f8c8d;
-            border-color: #7f8c8d;
-        }
-        .btn-success {
-            background-color: #27ae60;
-            border-color: #27ae60;
-        }
-        .btn-success:hover {
-            background-color: #229954;
-            border-color: #229954;
-        }
-        .form-control {
-            border-radius: 10px;
-        }
-        .form-check-label {
-            color: #34495e;
-        }
-        hr {
-            border-top: 1px solid #ccc;
-            margin: 2rem 0;
-        }
-        .d-flex {
-            gap: 1rem;
-        }
-    </style>
-      <body class="container snipe-sourmash-component py-5">
-      <!-- Google Tag Manager (noscript) -->
-      <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N5RW3TB3"
-          height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-          <!-- End Google Tag Manager (noscript) -->
-          
-        <div class="container" style="max-width: 800px;">
-          <h1 class="text-center mb-4">Snipe Sketch</h1>
-          <div class="card">
-            <div class="card-body">
-              <div class="mb-3">
-                <label for="file-input" class="form-label">Select Files:</label>
-                <input
-                  class="form-control"
-                  type="file"
-                  id="file-input"
-                  @change=${this.handleFileChanges}
-                  multiple
-                  accept=${SUPPORTED_EXTENSIONS.join(',')}
-                />
-              </div>
-  
-              <div class="mb-3">
-                <label for="folder-input" class="form-label">Select Folder:</label>
-                <input
-                  class="form-control"
-                  type="file"
-                  id="folder-input"
-                  webkitdirectory
-                  @change=${this.handleFileChanges}
-                />
-              </div>
-  
-              <div class="row mb-3">
-                <div class="col-md-4">
-                  <label for="ksize" class="form-label">K-size:</label>
+    return html`
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+      <style>
+          /* Custom Styles */
+          body {
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+              min-height: 100vh;
+              margin: 0;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+          }
+          .container.snipe-sourmash-component {
+              background-color: white;
+              padding: 2rem;
+              border-radius: 15px;
+              box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+              max-width: 800px;
+          }
+          h1 {
+              color: #2c3e50;
+              text-align: center;
+              margin-bottom: 2rem;
+              font-size: 2.5rem;
+              text-transform: uppercase;
+              letter-spacing: 2px;
+          }
+          .card {
+              border: none;
+              box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+          }
+          .card-body {
+              padding: 2rem;
+          }
+          .form-label {
+              font-weight: bold;
+              color: #34495e;
+          }
+          .btn-primary {
+              background-color: #3498db;
+              border-color: #3498db;
+          }
+          .btn-primary:hover {
+              background-color: #2980b9;
+              border-color: #2980b9;
+          }
+          .btn-secondary {
+              background-color: #95a5a6;
+              border-color: #95a5a6;
+          }
+          .btn-secondary:hover {
+              background-color: #7f8c8d;
+              border-color: #7f8c8d;
+          }
+          .btn-success {
+              background-color: #27ae60;
+              border-color: #27ae60;
+          }
+          .btn-success:hover {
+              background-color: #229954;
+              border-color: #229954;
+          }
+          .form-control {
+              border-radius: 10px;
+          }
+          .form-check-label {
+              color: #34495e;
+          }
+          hr {
+              border-top: 1px solid #ccc;
+              margin: 2rem 0;
+          }
+          .d-flex {
+              gap: 1rem;
+          }
+          .align-bottom {
+              display: flex;
+              align-items: flex-end;
+          }
+      </style>
+        <body class="container snipe-sourmash-component py-5">
+        <!-- Google Tag Manager (noscript) -->
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N5RW3TB3"
+            height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+            <!-- End Google Tag Manager (noscript) -->
+            
+          <div class="container" style="max-width: 800px;">
+            <h1 class="text-center mb-4">Snipe Sketch</h1>
+            <div class="card">
+              <div class="card-body">
+                <div class="mb-3">
+                  <label for="file-input" class="form-label">Select Files:</label>
                   <input
-                    type="number"
-                    id="ksize"
                     class="form-control"
-                    .value="${this.ksize}"
-                    @input=${(e: InputEvent) => this.handleInputChange(e, 'ksize')}
+                    type="file"
+                    id="file-input"
+                    @change=${this.handleFileChanges}
+                    multiple
+                    accept=${SUPPORTED_EXTENSIONS.join(',')}
                   />
                 </div>
-                <div class="col-md-4">
-                  <label for="scaled" class="form-label">Scaled:</label>
+  
+                <div class="mb-3">
+                  <label for="folder-input" class="form-label">Select Folder:</label>
                   <input
-                    type="number"
-                    id="scaled"
                     class="form-control"
-                    .value="${this.scaled}"
-                    @input=${(e: InputEvent) => this.handleInputChange(e, 'scaled')}
+                    type="file"
+                    id="folder-input"
+                    webkitdirectory
+                    @change=${this.handleFileChanges}
                   />
                 </div>
-                <div class="col-md-4">
-                  <div class="form-check mt-4">
+  
+                <!-- input row -->
+                <div class="row mb-3 align-items-end">
+                  <div class="col-md-4">
+                    <label for="ksize" class="form-label">K-size:</label>
                     <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="track-abundance"
-                      .checked="${this.track_abundance}"
-                      @input=${(e: InputEvent) => this.handleInputChange(e, 'track_abundance')}
+                      type="number"
+                      id="ksize"
+                      class="form-control"
+                      .value="${this.ksize}"
+                      @input=${(e: InputEvent) => this.handleInputChange(e, 'ksize')}
                     />
-                    <label class="form-check-label" for="track-abundance">
-                      Track Abundance
-                    </label>
+                  </div>
+                  <div class="col-md-4">
+                    <label for="scaled" class="form-label">Scaled:</label>
+                    <input
+                      type="number"
+                      id="scaled"
+                      class="form-control"
+                      .value="${this.scaled}"
+                      @input=${(e: InputEvent) => this.handleInputChange(e, 'scaled')}
+                    />
+                  </div>
+                  <div class="col-md-4 d-flex align-items-end">
+                    <div class="form-check form-switch align-self-end">
+                      <input
+                        class="form-check-input""
+                        type="checkbox"
+                        id="track-abundance"
+                        .checked="${this.track_abundance}"
+                        @input=${(e: InputEvent) => this.handleInputChange(e, 'track_abundance')}
+                      />
+                      <label class="form-check-label" for="track-abundance"> Track Abundance </label>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <hr />
-              <div class="d-flex justify-content-between mt-4">
-                <button class="btn btn-primary" @click=${this.startSketching}>Start Sketching</button>
-                <button class="btn btn-secondary ms-2" @click=${this.clearSession}>Clear</button>
-                ${Object.keys(this.signatures).length > 0
-                  ? html`
-                      <button class="btn btn-success ms-2" @click=${this.downloadAllSketches}>
-                        Download All as Zip
-                      </button>
-                    `
-                  : ''}
-              </div>
-              <hr />
+                <hr />
+                <div class="d-flex justify-content-between mt-4">
+                  <button class="btn btn-primary" @click=${this.startSketching}>Start Sketching</button>
+                  <button class="btn btn-secondary ms-2" @click=${this.clearSession}>Clear</button>
+                  ${Object.keys(this.signatures).length > 0
+                    ? html`
+                        <button class="btn btn-success ms-2" @click=${this.downloadAllSketches}>
+                          Download All as Zip
+                        </button>
+                      `
+                    : ''}
+                </div>
+                <hr />
   
-              ${this.renderSelectedFiles()}
+                ${this.renderSelectedFiles()}
+              </div>
             </div>
           </div>
-        </div>
-      </body>
-      <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-      crossorigin="anonymous"></script>
-    `;
+        </body>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+      `;
   }
 }
 
