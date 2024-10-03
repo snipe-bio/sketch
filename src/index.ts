@@ -196,9 +196,82 @@ export class MGnifySourmash extends LitElement {
 
 
   render() {
-    return html`
+  return html`
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
     <style>
-      ${style}
+        /* Custom Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container.snipe-sourmash-component {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .card-body {
+            padding: 2rem;
+        }
+        .form-label {
+            font-weight: bold;
+            color: #34495e;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            border-color: #3498db;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+        }
+        .btn-secondary {
+            background-color: #95a5a6;
+            border-color: #95a5a6;
+        }
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+            border-color: #7f8c8d;
+        }
+        .btn-success {
+            background-color: #27ae60;
+            border-color: #27ae60;
+        }
+        .btn-success:hover {
+            background-color: #229954;
+            border-color: #229954;
+        }
+        .form-control {
+            border-radius: 10px;
+        }
+        .form-check-label {
+            color: #34495e;
+        }
+        hr {
+            border-top: 1px solid #ccc;
+            margin: 2rem 0;
+        }
+        .d-flex {
+            gap: 1rem;
+        }
     </style>
       <body class="container snipe-sourmash-component py-5">
       <!-- Google Tag Manager (noscript) -->
@@ -207,7 +280,7 @@ export class MGnifySourmash extends LitElement {
           <!-- End Google Tag Manager (noscript) -->
           
         <div class="container" style="max-width: 800px;">
-          <h1 class="text-center mb-4">Snipe Sketching Dashboard</h1>
+          <h1 class="text-center mb-4">Snipe Sketch</h1>
           <div class="card">
             <div class="card-body">
               <div class="mb-3">
@@ -221,7 +294,7 @@ export class MGnifySourmash extends LitElement {
                   accept=${SUPPORTED_EXTENSIONS.join(',')}
                 />
               </div>
-
+  
               <div class="mb-3">
                 <label for="folder-input" class="form-label">Select Folder:</label>
                 <input
@@ -232,7 +305,7 @@ export class MGnifySourmash extends LitElement {
                   @change=${this.handleFileChanges}
                 />
               </div>
-
+  
               <div class="row mb-3">
                 <div class="col-md-4">
                   <label for="ksize" class="form-label">K-size:</label>
@@ -282,12 +355,15 @@ export class MGnifySourmash extends LitElement {
                   : ''}
               </div>
               <hr />
-
+  
               ${this.renderSelectedFiles()}
             </div>
           </div>
         </div>
       </body>
+      <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      crossorigin="anonymous"></script>
     `;
   }
 }
