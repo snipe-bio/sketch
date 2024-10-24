@@ -1,10 +1,10 @@
-name: Build and Deploy to GitHub Pages
+name: Build, Deploy, and Release to GitHub Pages
 
 on:
   push:
     branches:
-      - main  
-  workflow_dispatch:  
+      - main
+  workflow_dispatch:
 
 jobs:
   build:
@@ -13,28 +13,70 @@ jobs:
       contents: write
 
     steps:
-    
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'  
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
-    
-    - name: Install dependencies
-      run: npm install
+      - name: Install Dependencies
+        run: npm install
 
-    
-    - name: Run build script
-      run: npm run build
+      - name: Run Build Script
+        run: npm run build
 
-    
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
 
+      - name: Archive Built Website
+        run: zip -r dist.zip dist
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: built-site
+          path: dist.zip
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: built-site
+          path: .
+
+      - name: Extract Built Website
+        run: unzip dist.zip -d dist
+
+      - name: Package Source Code
+        run: git archive --format zip --output source.zip HEAD
+
+      - name: Generate Changelog
+        run: |
+          echo "# Changelog" > CHANGELOG.md
+          git log $(git describe --tags --abbrev=0 @^)..@ --pretty=format:"- %s" >> CHANGELOG.md
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            source.zip
+            dist.zip
+          body_path: CHANGELOG.md # Includes the generated changelog in the release notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
