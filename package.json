@@ -1,6 +1,6 @@
 {
   "name": "snipe-sourmash-component",
-  "version": "0.4.1",
+  "version": "v0.4.1",
   "description": "A web component to select FASTA/Q(.gz) file(s) or dirs and generate sourmash signatures locally.",
   "module": "dist/snipe-sourmash-component.js",
   "main": "dist/snipe-sourmash-component.js",

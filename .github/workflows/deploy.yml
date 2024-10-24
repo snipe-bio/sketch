@@ -77,6 +77,6 @@ jobs:
           files: |
             source.zip
             dist.zip
-          body_path: CHANGELOG.md # Includes the generated changelog in the release notes
+          body_path: CHANGELOG.md  # Includes the generated changelog in the release notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
